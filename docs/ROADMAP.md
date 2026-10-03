@@ -31,16 +31,20 @@ Postgres requiere Docker Desktop, pendiente de instalar — se verifica en M1.)*
 
 ---
 
-## M1 — PostgreSQL + modelos + migraciones
+## M1 — PostgreSQL + modelos + migraciones ✅
 
 **Objetivo**: esquema completo de las 9 entidades en SQLAlchemy + migración Alembic.
 
 **Entregables**: `backend/pyproject.toml` (deps), modelos, `alembic` configurado, migración
 inicial completa (tablas, enums, constraints, índices), seed mínimo (3 restaurantes ficticios).
 
-**Verificación**: `docker compose up -d postgres` sano → `alembic upgrade head` → `alembic downgrade base && alembic upgrade head` idempotente → tests de modelos en verde.
+**Nota de implementación**: los enums nativos se crean/borran explícitamente en la migración
+(`postgresql.ENUM` con `create_type=False` en las tablas) para que `downgrade base && upgrade
+head` sea totalmente reversible — el `drop_table` autogenerado dejaría tipos huérfanos.
 
-**Dependencias**: Docker Desktop instalado.
+**Verificación** ✅: `docker compose up -d postgres` sano → `alembic upgrade head` →
+`alembic downgrade base && alembic upgrade head` reversible → `alembic check` sin
+diferencias → tests de modelos en verde → seed cargado.
 
 ---
 

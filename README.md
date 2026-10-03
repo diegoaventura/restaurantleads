@@ -5,8 +5,8 @@ de pedidos: sustituye el prospección manual (buscar restaurantes con delivery �
 contacto → llamar → registrar → hacer seguimiento → convertir) por un sistema con ingesta
 de datos, deduplicación, lead scoring explicable, CRM con seguimientos y analítica.
 
-> Estado actual: **Milestone 0 completado** (arquitectura y documentación). El desarrollo
-> avanza por milestones — ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Milestone 1 completado** (arquitectura, documentación, modelos y
+> migraciones). El desarrollo avanza por milestones — ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Stack
 
@@ -36,19 +36,34 @@ restaurant-leads/
 └── docker-compose.yml   # PostgreSQL (backend/frontend se añaden en M12)
 ```
 
-## Puesta en marcha (parcial — hasta M0)
+## Puesta en marcha (M1 — backend: modelos + migraciones + seed)
 
-Requisitos: Docker Desktop (pendiente de instalar en la máquina de desarrollo).
+Requisitos: Docker Desktop (en ejecución), Python 3.11+.
 
 ```bash
-# 1. Configurar entorno
-cp .env.example .env        # ajusta POSTGRES_PASSWORD y SECRET_KEY
+# 1. Configurar entorno (los valores por defecto ya coinciden con docker-compose)
+cp .env.example .env        # ajusta SECRET_KEY y POSTGRES_PASSWORD
 
 # 2. Levantar PostgreSQL
 docker compose up -d postgres
+
+# 3. Backend
+cd backend
+python -m venv .venv
+.venv\Scripts\activate          # Windows (Linux/macOS: source .venv/bin/activate)
+pip install -e ".[dev]"
+
+# 4. Migraciones
+alembic upgrade head
+
+# 5. Datos ficticios de desarrollo (2 usuarios + 3 restaurantes)
+python scripts/seed.py         # usuarios: admin@demo.local / ventas@demo.local (pass: demo1234)
+
+# 6. Tests (usan una BD desechable restaurant_leads_test)
+pytest
 ```
 
-El backend (`uvicorn`) y el frontend (`vite`) se añaden en los milestones 2 y 6;
+La API (uvicorn) llega en el Milestone 2; el frontend (vite) en el Milestone 6;
 el compose completo (backend + frontend + postgres) en el Milestone 12.
 
 ## Variables de entorno
