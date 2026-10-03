@@ -1,0 +1,29 @@
+# Restaurant Leads — infraestructura de desarrollo
+#
+# Milestone 0: solo PostgreSQL. El backend y el frontend se añaden
+# en el Milestone 12 (Docker completo + deployment).
+#
+# Requisitos: Docker Desktop instalado y en ejecución.
+# Uso:  docker compose up -d postgres
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: restaurant-leads-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-restaurant_leads}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_in_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-restaurant_leads}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
