@@ -30,6 +30,11 @@ DETAIL_OPTIONS = (
     selectinload(Restaurant.contacts),
     selectinload(Restaurant.interactions),
     selectinload(Restaurant.follow_ups),
+    selectinload(Restaurant.ai_generations),
+)
+# Duplicate review queue: the suspect AND the original (with its lead).
+DUPLICATE_QUEUE_OPTIONS = DETAIL_OPTIONS + (
+    selectinload(Restaurant.possible_duplicate_of).selectinload(Restaurant.lead),
 )
 
 SORTABLE_COLUMNS = {"score", "name", "updated_at"}

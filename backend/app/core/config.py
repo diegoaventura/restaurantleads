@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     # --- CORS ---
     frontend_url: str = "http://localhost:5173"
 
+    # --- Ingesta ---
+    # Overpass API (OpenStreetMap): pública y gratuita, no requiere clave.
+    # Se usa con respeto: intervalo mínimo entre consultas y timeout explícitos.
+    overpass_url: str = "https://overpass-api.de/api/interpreter"
+    overpass_request_interval_seconds: float = 5.0
+    overpass_timeout_seconds: float = 60.0
+
     # --- Database ---
     database_url: str = (
         "postgresql+psycopg://restaurant_leads:change_me_in_dev"

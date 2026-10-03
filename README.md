@@ -5,9 +5,9 @@ de pedidos: sustituye el prospección manual (buscar restaurantes con delivery �
 contacto → llamar → registrar → hacer seguimiento → convertir) por un sistema con ingesta
 de datos, deduplicación, lead scoring explicable, CRM con seguimientos y analítica.
 
-> Estado actual: **Milestone 2 completado** (arquitectura, documentación, modelos,
-> migraciones y backend FastAPI con auth). El desarrollo avanza por milestones — ver
-> [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Milestone 3 completado** (arquitectura, modelos, migraciones, backend
+> FastAPI con auth e ingesta con normalización + deduplicación). El desarrollo avanza por
+> milestones — ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Stack
 

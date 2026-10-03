@@ -163,9 +163,8 @@ PATCH /api/v1/follow-ups/{id}
 
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
-| GET | `/api/v1/ingestion/connectors` | admin | Conectores disponibles + estado |
+| GET | `/api/v1/ingestion/connectors` | admin | Conectores disponibles + parámetros |
 | POST | `/api/v1/ingestion/run` | admin | Ejecuta un conector |
-| GET | `/api/v1/ingestion/runs/{run_id}` | admin | Resultado de la ejecución |
 
 ```http
 POST /api/v1/ingestion/run

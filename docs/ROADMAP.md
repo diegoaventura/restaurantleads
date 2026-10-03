@@ -64,18 +64,30 @@ override para admin); 32 tests en verde (10 de modelos + 22 de API).
 
 ---
 
-## M3 — Ingesta + normalización + deduplicación
+## M3 — Ingesta + normalización + deduplicación ✅
 
 **Objetivo**: pipeline `extract → normalize → validate → deduplicate → load` con dos conectores.
 
 **Entregables**: `ingestion/base.py` (interfaz `Connector` + `RestaurantCandidate`),
 `connectors/manual_import.py` (CSV), `connectors/osm.py` (Overpass, rate-limited),
-servicios de normalización (`phonenumbers`) y matching (`rapidfuzz`), cola de duplicados
+servicios de normalización (`phonenumbers`, E.164) y matching (`rapidfuzz`), cola de duplicados
 (`GET /duplicates`, resolver merge/keep_both), endpoint `POST /ingestion/run` (dry_run).
 
-**Verificación**: tests de normalización de teléfonos/nombres; tests de detección de
-duplicados (seguro, dudoso, no duplicado); CSV de ejemplo con datos ficticios carga sin
-duplicar; dry_run no escribe en BD.
+**Notas de implementación**:
+- Matching priority 1-4 (external_id/phone/website/name+address) → fusión automática **solo
+  rellenando huecos** (nunca sobrescribe datos existentes); priority 5 (similitud ≥85 +
+  proximidad ≤300 m, misma ciudad y con coordenadas) → cola de revisión humana, nunca merge
+  automático. Nombres repetidos sin coordenadas NO se marcan (pueden ser franquicias).
+- `dry_run` ejecuta el pipeline completo y hace rollback: los contadores son reales.
+- El historial de ejecuciones (`GET /ingestion/runs/{id}`) queda **aplazado** (requiere tabla
+  propia); candidato para un milestone posterior si aporta valor operativo.
+- El conector OSM se testea sin red (parseo puro de elementos Overpass); las llamadas reales
+  respetan intervalo configurado y timeout.
+
+**Verificación** ✅: CSV ficticio carga sin duplicar (2ª ejecución idempotente: 0 nuevos);
+dry_run no escribe; duplicado dudoso a la cola + resolución merge/keep_both funcionales;
+demo real ejecutada contra la BD de desarrollo; 73 tests en verde (15 normalización +
+10 deduplicación + 9 ingesta API + 8 OSM + previos).
 
 ---
 
