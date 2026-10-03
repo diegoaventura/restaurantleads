@@ -24,7 +24,10 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import get_settings
 from app.core.eventloop import ensure_compatible_event_loop
+from app.core.security import hash_password
 from app.db.base import Base
+from app.models import User
+from app.models.enums import UserRole
 
 ensure_compatible_event_loop()  # Windows + psycopg async (ProactorEventLoop)
 
@@ -74,3 +77,65 @@ async def db_session() -> AsyncIterator[AsyncSession]:
         await conn.execute(text(f"TRUNCATE TABLE {table_names} RESTART IDENTITY CASCADE"))
 
     await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def client():
+    """HTTP client bound to the app, with the DB overridden to the test DB."""
+    from httpx import ASGITransport, AsyncClient
+
+    from app.api.deps import get_db_session as dep_get_db_session
+    from app.main import create_app
+
+    app = create_app()
+    engine = create_async_engine(_url_with_db(TEST_DB_NAME), pool_pre_ping=True)
+    factory = async_sessionmaker(engine, expire_on_commit=False)
+
+    async def override_get_db_session() -> AsyncIterator[AsyncSession]:
+        async with factory() as session:
+            yield session
+
+    app.dependency_overrides[dep_get_db_session] = override_get_db_session
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
+        yield ac
+
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def users(db_session: AsyncSession):
+    """One admin + one sales user (fictional, per-test)."""
+    admin = User(
+        email="admin@example.com",
+        full_name="Ana Admin",
+        hashed_password=hash_password("admin-pass-1234"),
+        role=UserRole.ADMIN,
+    )
+    sales = User(
+        email="ventas@example.com",
+        full_name="Sam Sales",
+        hashed_password=hash_password("sales-pass-1234"),
+        role=UserRole.SALES,
+    )
+    db_session.add_all([admin, sales])
+    await db_session.commit()
+    return {"admin": admin, "sales": sales}
+
+
+@pytest_asyncio.fixture
+async def auth_headers(client, users) -> dict[str, dict[str, str]]:
+    """Bearer headers for both roles."""
+    headers: dict[str, dict[str, str]] = {}
+    for key, password in (
+        ("admin", "admin-pass-1234"),
+        ("sales", "sales-pass-1234"),
+    ):
+        response = await client.post(
+            "/api/v1/auth/login",
+            json={"email": users[key].email, "password": password},
+        )
+        assert response.status_code == 200, response.text
+        headers[key] = {"Authorization": f"Bearer {response.json()['access_token']}"}
+    return headers

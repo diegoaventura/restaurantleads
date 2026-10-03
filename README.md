@@ -5,8 +5,9 @@ de pedidos: sustituye el prospección manual (buscar restaurantes con delivery �
 contacto → llamar → registrar → hacer seguimiento → convertir) por un sistema con ingesta
 de datos, deduplicación, lead scoring explicable, CRM con seguimientos y analítica.
 
-> Estado actual: **Milestone 1 completado** (arquitectura, documentación, modelos y
-> migraciones). El desarrollo avanza por milestones — ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Milestone 2 completado** (arquitectura, documentación, modelos,
+> migraciones y backend FastAPI con auth). El desarrollo avanza por milestones — ver
+> [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Stack
 
@@ -57,14 +58,23 @@ pip install -e ".[dev]"
 alembic upgrade head
 
 # 5. Datos ficticios de desarrollo (2 usuarios + 3 restaurantes)
-python scripts/seed.py         # usuarios: admin@demo.local / ventas@demo.local (pass: demo1234)
+python scripts/seed.py         # usuarios: admin@example.com / ventas@example.com (pass: demo1234)
 
 # 6. Tests (usan una BD desechable restaurant_leads_test)
 pytest
+
+# 7. API (http://127.0.0.1:8000/docs — Swagger autogenerado)
+python run.py
+#    login: admin@example.com / demo1234 (rol admin)
+#    login: ventas@example.com / demo1234 (rol sales)
 ```
 
-La API (uvicorn) llega en el Milestone 2; el frontend (vite) en el Milestone 6;
-el compose completo (backend + frontend + postgres) en el Milestone 12.
+> Nota Windows: `run.py` lanza uvicorn con `loop="none"` — uvicorn ≥0.36 fuerza
+> ProactorEventLoop en Windows, incompatible con psycopg async. En Linux/macOS
+> (`uvicorn app.main:app`) no hace falta.
+
+El frontend (vite) llega en el Milestone 6; el compose completo (backend +
+frontend + postgres) en el Milestone 12.
 
 ## Variables de entorno
 

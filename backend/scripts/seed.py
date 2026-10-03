@@ -76,13 +76,13 @@ async def main() -> None:
 
         # --- Users (fictional) ---
         admin = User(
-            email="admin@demo.local",
+            email="admin@example.com",
             full_name="Ana Admin",
             hashed_password=hash_password(DEMO_PASSWORD),
             role=UserRole.ADMIN,
         )
         sales = User(
-            email="ventas@demo.local",
+            email="ventas@example.com",
             full_name="Sam Sales",
             hashed_password=hash_password(DEMO_PASSWORD),
             role=UserRole.SALES,
@@ -226,7 +226,7 @@ async def main() -> None:
         await session.commit()
 
     await engine.dispose()
-    print("Seed OK: 2 usuarios (admin@demo.local / ventas@demo.local, pass: demo1234)")
+    print("Seed OK: 2 usuarios (admin@example.com / ventas@example.com, pass: demo1234)")
     print("Seed OK: 3 restaurantes ficticios con leads, interacciones y seguimientos")
 
 

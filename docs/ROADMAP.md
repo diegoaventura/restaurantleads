@@ -48,15 +48,19 @@ diferencias → tests de modelos en verde → seed cargado.
 
 ---
 
-## M2 — Backend FastAPI (esqueleto + auth + CRUD)
+## M2 — Backend FastAPI (esqueleto + auth + CRUD) ✅
 
 **Objetivo**: app FastAPI ejecutable con auth JWT, CRUD de restaurants/leads y paginación.
 
 **Entregables**: config (env), logging, seguridad (bcrypt + JWT + roles), routers
 `auth`, `restaurants` (+ sub-recursos básicos), `users` (admin), `health`, manejo de errores.
 
-**Verificación**: `uvicorn` arranca; login devuelve token; CRUD protegido responde 401/403
-según rol; tests de API + auth en verde.
+**Nota de implementación**: en Windows, uvicorn ≥0.36 fuerza ProactorEventLoop (incompatible
+con psycopg async). Solución: `run.py` fija la política del selector y lanza con `loop="none"`.
+
+**Verificación** ✅: `python run.py` arranca; login devuelve token; endpoints protegidos
+responden 401/403 según rol; transiciones de estado del lead validadas (422 para sales,
+override para admin); 32 tests en verde (10 de modelos + 22 de API).
 
 ---
 

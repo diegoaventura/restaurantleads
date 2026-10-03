@@ -1,12 +1,7 @@
-"""Async engine and session factory.
-
-A single engine/session factory per process, created lazily from settings.
-M2 will reuse `get_db_session` as the FastAPI dependency.
-"""
+"""Async engine and session factory (singletons per process, lazy)."""
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
 from functools import lru_cache
 
 from sqlalchemy.ext.asyncio import (
@@ -20,23 +15,17 @@ from app.core.config import get_settings
 
 
 @lru_cache
-def _engine() -> AsyncEngine:
+def get_engine() -> AsyncEngine:
     return create_async_engine(get_settings().database_url, pool_pre_ping=True)
 
 
 @lru_cache
-def _session_factory() -> async_sessionmaker[AsyncSession]:
-    return async_sessionmaker(_engine(), expire_on_commit=False)
-
-
-async def get_db_session() -> AsyncIterator[AsyncSession]:
-    """Yield a session per request (FastAPI dependency)."""
-    async with _session_factory() as session:
-        yield session
+def get_session_factory() -> async_sessionmaker[AsyncSession]:
+    return async_sessionmaker(get_engine(), expire_on_commit=False)
 
 
 async def dispose_engine() -> None:
     """Close pooled connections (app shutdown)."""
-    _engine().dispose()
-    _engine.cache_clear()
-    _session_factory.cache_clear()
+    await get_engine().dispose()
+    get_engine.cache_clear()
+    get_session_factory.cache_clear()
