@@ -164,3 +164,10 @@ class RestaurantDetail(RestaurantOut):
     contacts: list[ContactOut]
     interactions: list[InteractionOut]
     follow_ups: list[FollowUpOut]
+
+
+class RestaurantExport(BaseModel):
+    """GDPR portability: the complete record of one restaurant."""
+
+    exported_at: datetime
+    restaurant: RestaurantDetail

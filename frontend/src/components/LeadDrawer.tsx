@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getRestaurant, patchLead } from "../api/endpoints";
 import type {
+  InteractionChannel,
   LeadPriority,
   LeadStatus,
   RestaurantDetail,
@@ -32,6 +34,7 @@ export default function LeadDrawer({
   const [detail, setDetail] = useState<RestaurantDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalChannel, setModalChannel] = useState<InteractionChannel>("call");
   const [copied, setCopied] = useState<string | null>(null);
   const [statusBusy, setStatusBusy] = useState(false);
 
@@ -135,11 +138,17 @@ export default function LeadDrawer({
                 </button>
               </div>
 
-              {/* Action bar: the 5-click flow's contact step */}
+              {/* Action bar: the 5-click flow's contact step.
+                  Call/WhatsApp open the register modal with the channel
+                  preset (the action is logged, plan FASE 11). */}
               <div className="mt-4 flex flex-wrap gap-2">
                 {phone && (
                   <a
                     href={`tel:${phone}`}
+                    onClick={() => {
+                      setModalChannel("call");
+                      setModalOpen(true);
+                    }}
                     className="rounded-lg bg-teal-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-teal-700"
                   >
                     📞 Llamar
@@ -150,13 +159,20 @@ export default function LeadDrawer({
                     href={whatsappHref}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => {
+                      setModalChannel("whatsapp");
+                      setModalOpen(true);
+                    }}
                     className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
                   >
                     💬 WhatsApp
                   </a>
                 )}
                 <button
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => {
+                    setModalChannel("call");
+                    setModalOpen(true);
+                  }}
                   className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
                   ✓ Registrar contacto
@@ -169,6 +185,13 @@ export default function LeadDrawer({
                     {copied === "teléfono" ? "¡Copiado!" : "⧉ Teléfono"}
                   </button>
                 )}
+                <Link
+                  to={`/restaurants/${restaurantId}`}
+                  onClick={onClose}
+                  className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+                >
+                  Ver ficha completa →
+                </Link>
               </div>
             </div>
 
@@ -389,6 +412,7 @@ export default function LeadDrawer({
         <RegisterInteractionModal
           restaurantId={detail.id}
           restaurantName={detail.name}
+          defaultChannel={modalChannel}
           onDone={() => {
             setModalOpen(false);
             void load();

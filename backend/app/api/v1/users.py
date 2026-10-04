@@ -8,14 +8,24 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_db_session, require_admin
+from app.api.deps import get_current_user, get_db_session, require_admin
 from app.core.security import hash_password
 from app.models import User
 from app.models.enums import UserRole
 from app.schemas.common import Page
-from app.schemas.user import UserCreate, UserOut, UserUpdate
+from app.schemas.user import AssignableUser, UserCreate, UserOut, UserUpdate
 
 router = APIRouter()
+
+
+@router.get("/assignable", response_model=list[AssignableUser])
+async def list_assignable_users(
+    db: AsyncSession = Depends(get_db_session),
+    _user: User = Depends(get_current_user),
+) -> list[User]:
+    """Active users for lead assignment (minimal fields, no emails — privacy)."""
+    stmt = select(User).where(User.is_active.is_(True)).order_by(User.full_name)
+    return list((await db.scalars(stmt)).all())
 
 
 @router.get("", response_model=Page[UserOut])

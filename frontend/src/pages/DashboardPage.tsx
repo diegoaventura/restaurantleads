@@ -121,7 +121,7 @@ export default function DashboardPage() {
                   {formatTime(item.scheduled_at)}
                 </span>
                 <Link
-                  to={`/leads?search=${encodeURIComponent(item.restaurant_name)}`}
+                  to={`/restaurants/${item.restaurant_id}`}
                   className="flex-1 truncate text-sm font-medium text-slate-900 hover:text-teal-600"
                 >
                   {item.restaurant_name}

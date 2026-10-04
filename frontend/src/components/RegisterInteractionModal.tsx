@@ -19,15 +19,17 @@ function defaultFollowUpDate(): string {
 export default function RegisterInteractionModal({
   restaurantId,
   restaurantName,
+  defaultChannel = "call",
   onDone,
   onCancel,
 }: {
   restaurantId: string;
   restaurantName: string;
+  defaultChannel?: InteractionChannel;
   onDone: () => void;
   onCancel: () => void;
 }) {
-  const [channel, setChannel] = useState<InteractionChannel>("call");
+  const [channel, setChannel] = useState<InteractionChannel>(defaultChannel);
   const [result, setResult] = useState<InteractionResult>("no_answer");
   const [notes, setNotes] = useState("");
   const [scheduleFollowUp, setScheduleFollowUp] = useState(false);

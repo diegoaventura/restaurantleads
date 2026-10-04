@@ -55,6 +55,7 @@ POST /api/v1/auth/login
 | Método | Ruta | Descripción |
 |---|---|---|
 | GET | `/api/v1/users` | Listado (paginado) |
+| GET | `/api/v1/users/assignable` | Usuarios activos para asignar leads (mínimo: id, nombre, rol — sin emails) |
 | POST | `/api/v1/users` | Crear usuario (`email`, `full_name`, `password`, `role`) |
 | PATCH | `/api/v1/users/{id}` | Editar (rol, activo, nombre) |
 

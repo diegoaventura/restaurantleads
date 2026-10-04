@@ -65,9 +65,28 @@ export function getRestaurant(id: string) {
 
 export function patchLead(
   id: string,
-  body: { status?: LeadStatus; priority?: LeadPriority },
+  body: { status?: LeadStatus; priority?: LeadPriority; assigned_to?: string },
 ) {
   return api<LeadSummary>(`/restaurants/${id}/lead`, { method: "PATCH", body });
+}
+
+export interface RestaurantExport {
+  exported_at: string;
+  restaurant: RestaurantDetail;
+}
+
+export function exportRestaurant(id: string) {
+  return api<RestaurantExport>(`/restaurants/${id}/export`);
+}
+
+export interface AssignableUser {
+  id: string;
+  full_name: string;
+  role: "admin" | "sales";
+}
+
+export function listAssignableUsers() {
+  return api<AssignableUser[]>("/users/assignable");
 }
 
 // --- CRM ---

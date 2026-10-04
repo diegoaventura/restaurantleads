@@ -127,6 +127,7 @@ export interface RestaurantDetail extends RestaurantRow {
   address: string | null;
   postal_code: string | null;
   phone_source: SourceType | null;
+  phone_verified_at: string | null;
   email_source: SourceType | null;
   website_source: SourceType | null;
   sources: SourceRow[];

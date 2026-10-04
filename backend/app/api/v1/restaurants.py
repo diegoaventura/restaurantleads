@@ -26,6 +26,7 @@ from app.schemas.restaurant import (
     LeadUpdate,
     RestaurantCreate,
     RestaurantDetail,
+    RestaurantExport,
     RestaurantOut,
     RestaurantUpdate,
 )
@@ -168,6 +169,20 @@ async def soft_delete_restaurant(
     restaurant.deleted_at = utcnow()
     await db.commit()
     return Message(detail="Restaurante eliminado (soft delete)")
+
+
+@router.get("/{restaurant_id}/export", response_model=RestaurantExport)
+async def export_restaurant(
+    restaurant_id: UUID,
+    db: AsyncSession = Depends(get_db_session),
+    _user: User = Depends(get_current_user),
+) -> RestaurantExport:
+    """GDPR portability: the complete record (data + provenance + history)."""
+    restaurant = await _get_or_404(db, restaurant_id, detail=True)
+    return RestaurantExport(
+        exported_at=utcnow(),
+        restaurant=RestaurantDetail.model_validate(restaurant),
+    )
 
 
 @router.patch("/{restaurant_id}/lead", response_model=LeadOut)

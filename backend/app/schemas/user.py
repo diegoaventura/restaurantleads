@@ -35,6 +35,16 @@ class UserOut(BaseModel):
     updated_at: datetime
 
 
+class AssignableUser(BaseModel):
+    """Minimal projection for lead assignment — no email (privacy)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    full_name: str
+    role: UserRole
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str

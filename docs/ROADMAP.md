@@ -170,17 +170,27 @@ del roadmap antes de continuar con M7**.
 
 ---
 
-## M7 — Ficha del restaurante
+## M7 — Ficha del restaurante ✅
 
-**Objetivo**: página individual completa.
+**Objetivo**: página individual completa (plan FASE 9).
 
-**Entregables**: datos + fuentes por campo, delivery detectado (plataforma/fecha/método),
-score con explicación, CRM (estado/responsable/notas), historial cronológico, próximo
-seguimiento, acciones rápidas (llamar, WhatsApp, copiar teléfono/email/mensaje) que
-registran interacción.
+**Entregables**: página dedicada `/restaurants/:id` (URL compartible) con: datos **con fuente
+y fecha de verificación por campo**, delivery (plataforma/método/fecha + enlace), score con
+desglose de factores, CRM (estado/prioridad/**responsable** con `GET /users/assignable` —
+proyección mínima sin emails), historial cronológico, seguimientos con acciones rápidas
+(completar / +1 día / +3 días / cancelar), acciones de contacto (llamar/WhatsApp abren el
+modal de registro con canal preseleccionado — la acción queda registrada), copiar
+teléfono/email, **⭳ Export JSON** (`GET /restaurants/{id}/export`, portabilidad RGPD con
+`exported_at`). El drawer enlaza a la ficha completa; la agenda del dashboard enlaza a la ficha.
 
-**Verificación**: ficha refleja un restaurante del seed con todas sus secciones; las
-acciones rápidas quedan registradas como interacciones.
+**Notas de implementación**: la exportación RGPD devuelve el registro completo (datos +
+procedencia + historial) con timestamp. `AssignableUser` expone solo `id/full_name/rol`
+(sin emails — minimización). Los enlaces `tel:`/`wa.me` abren el registro del contacto al
+usarse (plan FASE 11: "registrar la acción").
+
+**Verificación** ✅: 116 tests backend en verde (5 nuevos: export auth/404/completo/soft-deleted
++ asignables mínimos); `tsc` limpio + build OK; export y asignables verificados en caliente
+contra la BD de desarrollo; servidores corriendo para demo.
 
 ---
 

@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import DashboardPage from "./pages/DashboardPage";
 import LeadsPage from "./pages/LeadsPage";
 import LoginPage from "./pages/LoginPage";
+import RestaurantPage from "./pages/RestaurantPage";
 import { useAuth } from "./auth/AuthContext";
 
 function ProtectedLayout() {
@@ -25,6 +26,7 @@ export default function App() {
       <Route element={<ProtectedLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="leads" element={<LeadsPage />} />
+        <Route path="restaurants/:id" element={<RestaurantPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
