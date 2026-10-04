@@ -10,9 +10,11 @@ from __future__ import annotations
 from app.models.enums import LeadStatus
 
 ALLOWED_TRANSITIONS: dict[LeadStatus, frozenset[LeadStatus]] = {
-    LeadStatus.NEW: frozenset({LeadStatus.QUALIFIED, LeadStatus.DUPLICATE, LeadStatus.OUT_OF_AREA}),
+    LeadStatus.NEW: frozenset(
+        {LeadStatus.QUALIFIED, LeadStatus.CONTACTED, LeadStatus.NO_RESPONSE, LeadStatus.DUPLICATE, LeadStatus.OUT_OF_AREA}
+    ),
     LeadStatus.QUALIFIED: frozenset(
-        {LeadStatus.CONTACTED, LeadStatus.NOT_INTERESTED, LeadStatus.OUT_OF_AREA}
+        {LeadStatus.CONTACTED, LeadStatus.NO_RESPONSE, LeadStatus.NOT_INTERESTED, LeadStatus.OUT_OF_AREA}
     ),
     LeadStatus.CONTACTED: frozenset(
         {
@@ -22,6 +24,8 @@ ALLOWED_TRANSITIONS: dict[LeadStatus, frozenset[LeadStatus]] = {
             LeadStatus.WRONG_NUMBER,
             LeadStatus.MEETING,
             LeadStatus.QUALIFIED,
+            LeadStatus.OUT_OF_AREA,
+            LeadStatus.DUPLICATE,
         }
     ),
     LeadStatus.NO_RESPONSE: frozenset({LeadStatus.FOLLOW_UP, LeadStatus.CONTACTED}),

@@ -187,9 +187,9 @@ Estado comercial. **1:1 con restaurants** (`restaurant_id` UNIQUE).
 **Transiciones válidas** (validadas en servicio, no solo en UI):
 
 ```
-new → qualified | duplicate | out_of_area
-qualified → contacted | not_interested | out_of_area
-contacted → interested | no_response | not_interested | wrong_number | meeting | qualified
+new → qualified | contacted | no_response | duplicate | out_of_area
+qualified → contacted | no_response | not_interested | out_of_area
+contacted → interested | no_response | not_interested | wrong_number | meeting | qualified | out_of_area | duplicate
 no_response → follow_up | contacted
 follow_up → contacted | interested | not_interested
 interested → meeting | customer | not_interested
@@ -197,6 +197,11 @@ meeting → customer | not_interested | follow_up
 customer → (terminal)
 not_interested, wrong_number, out_of_area, duplicate → (terminales, reversibles solo por admin)
 ```
+
+*Nota (M5)*: `new → no_response` y `contacted → out_of_area | duplicate` se añadieron para
+reflejar el resultado real de una primera llamada sin respuesta o fuera de zona. El registro
+de interacciones sincroniza el estado del lead automáticamente (con puente vía `contacted`
+cuando procede, p. ej. `no_response → interested`).
 
 ### follow_ups
 

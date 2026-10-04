@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     overpass_request_interval_seconds: float = 5.0
     overpass_timeout_seconds: float = 60.0
 
+    # --- CRM / follow-ups (M5) ---
+    # Días hasta el seguimiento automático tras un resultado de llamada.
+    follow_up_delay_days: int = 3        # no_answer / busy
+    follow_up_callback_delay_days: int = 1  # callback_requested
+
     # --- Scoring (M4) ---
     # Pesos y reglas activables sin tocar código; ver backend/scoring_rules.json
     scoring_rules_path: str = "scoring_rules.json"

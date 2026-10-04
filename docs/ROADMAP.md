@@ -118,16 +118,29 @@ recálculo baja el score al quitar el teléfono; ingesta y alta manual puntúan 
 
 ---
 
-## M5 — CRM
+## M5 — CRM ✅
 
 **Objetivo**: ciclo comercial completo: estados, interacciones, notas, historial, follow-ups.
 
 **Entregables**: transiciones de `lead_status` validadas, `POST /restaurants/{id}/interactions`
-(puede crear follow-up automáticamente según resultado), follow-ups CRUD
+(sincroniza el estado del lead + crea follow-up automático según resultado), follow-ups CRUD
 (completar/posponer/cancelar), historial inmutable (nunca DELETE de interacciones).
 
-**Verificación**: tests de transiciones válidas/inválidas; registrar `no_answer` el 03/10
-crea follow-up el 06/10; `test_follow_up_status` en verde.
+**Notas de implementación**:
+- Tabla de transiciones ampliada (semántica de "primera llamada"): `new → no_response`,
+  `qualified → no_response`, `contacted → out_of_area | duplicate` (ver docs/DATABASE.md).
+- El registro de interacciones sincroniza el estado del lead automáticamente (con puente vía
+  `contacted` cuando procede, p. ej. `no_response → interested`). Si ninguna transición es
+  válida (lead terminal), el estado no cambia: el historial es la fuente de verdad.
+- `no_answer`/`busy` → follow-up automático +`FOLLOW_UP_DELAY_DAYS` (3); `callback_requested`
+  → +1 día (ambos configurables por env). Ejemplo del plan: llamada 03/10 → seguimiento 06/10.
+- `postpone` mantiene el seguimiento `pending` en la nueva fecha (debe seguir en la agenda);
+  notas siempre se añaden, nunca sustituyen. No existe DELETE de interacciones ni follow-ups.
+
+**Verificación** ✅: registrar `no_answer` 03/10 crea seguimiento 06/10 + estado `no_response`;
+`interested` sincroniza (con puente); lead terminal no cambia de estado (interacción registrada
+igualmente); agenda con filtros `status`/`due_on`/`due_before`; acciones complete/postpone/cancel
+con validaciones (422); 107 tests en verde (15 nuevos de CRM).
 
 ---
 

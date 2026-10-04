@@ -132,12 +132,21 @@ POST /api/v1/restaurants/{id}/interactions
   "result": "no_answer",
   "notes": "Tono de ocupado a las 11:20"
 }
-→ 201  { …interacción…,
-  "follow_up_created": { "id": "…", "scheduled_at": "2026-10-06T11:20:00Z" } }
+→ 201 {
+  "interaction": { "id": "…", "channel": "call", "result": "no_answer", "occurred_at": "…", "notes": "…" },
+  "lead_status": "no_response",             // estado del lead sincronizado automáticamente
+  "follow_up_created": {                    // no_answer -> +3 días (configurable)
+    "id": "…", "scheduled_at": "2026-10-06T11:20:00Z", "channel": "call", "status": "pending"
+  }
+}
 ```
 
-`result=no_answer` → crea follow-up automático a +3 días (configurable).
-No existe DELETE: el historial no se borra.
+- `result` sincroniza el estado del lead automáticamente (con puente vía `contacted`
+  cuando procede; si no aplica ninguna transición válida, el estado no cambia y el
+  historial queda como fuente de verdad).
+- `no_answer`/`busy` → follow-up automático a `FOLLOW_UP_DELAY_DAYS` (3 por defecto);
+  `callback_requested` → +1 día.
+- No existe DELETE: el historial es append-only.
 
 ---
 
@@ -155,7 +164,10 @@ PATCH /api/v1/follow-ups/{id}
 { "action": "postpone", "new_date": "2026-10-08T09:00:00Z", "notes": "Lo pide el dueño" }
 ```
 
-`action` ∈ `complete` (marca `completed_at`), `postpone` (requiere `new_date`), `cancel`.
+`action` ∈ `complete` (marca `completed_at`), `postpone` (requiere `new_date`; el seguimiento
+**sigue pendiente** en la nueva fecha — debe seguir apareciendo en la agenda), `cancel`.
+Solo se puede actuar sobre seguimientos `pending`. Las notas se **añaden** (nunca sustituyen).
+No existe DELETE: los seguimientos se completan o cancelan, nunca se borran.
 
 ---
 
