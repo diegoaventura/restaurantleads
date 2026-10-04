@@ -98,8 +98,8 @@ GET /api/v1/restaurants?city=Madrid&status=contacted&min_score=60&sort=score&ord
   "lead": {
     "status": "contacted", "score": 87, "priority": "high", "assigned_to": "…",
     "score_reasons": [
-      { "factor": "delivery_detectado", "points": 25 },
-      { "factor": "zona_cubierta", "points": 20 }
+      { "factor": "delivery_detectado", "label": "Delivery detectado", "points": 25 },
+      { "factor": "zona_cubierta", "label": "Zona cubierta por el reparto", "points": 20 }
     ]
   },
   "sources": [ { "source": "osm", "external_id": "node/123456" } ],

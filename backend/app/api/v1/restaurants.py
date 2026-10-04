@@ -29,7 +29,7 @@ from app.schemas.restaurant import (
     RestaurantOut,
     RestaurantUpdate,
 )
-from app.services import lead_service, restaurant_service
+from app.services import lead_service, restaurant_service, scoring
 from app.services.normalization import normalize_name
 
 router = APIRouter()
@@ -116,6 +116,9 @@ async def create_restaurant(
     restaurant.sources = [RestaurantSource(source=SourceType.MANUAL)]
     restaurant.lead = Lead(assigned_to=user.id)
     db.add(restaurant)
+    await db.flush()
+    # Score immediately: a new lead enters the list already prioritized.
+    await scoring.score_restaurant(db, restaurant.id)
     await db.commit()
 
     return await _get_or_404(db, restaurant.id, detail=True)
@@ -206,6 +209,28 @@ async def update_lead(
             ) from exc
         lead.status = data["status"]
 
+    await db.commit()
+    await db.refresh(lead)
+    return lead
+
+
+@router.post("/{restaurant_id}/score/recalculate", response_model=LeadOut)
+async def recalculate_score(
+    restaurant_id: UUID,
+    db: AsyncSession = Depends(get_db_session),
+    _user: User = Depends(get_current_user),
+) -> Lead:
+    """Recompute the score with the current scoring_rules.json weights."""
+    await _get_or_404(db, restaurant_id)
+    try:
+        lead = await scoring.score_restaurant(db, restaurant_id)
+    except scoring.ScoringConfigError as exc:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            f"Configuración de scoring inválida: {exc}",
+        ) from exc
+    if lead is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Restaurante no encontrado")
     await db.commit()
     await db.refresh(lead)
     return lead

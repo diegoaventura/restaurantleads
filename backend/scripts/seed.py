@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from app.core.config import get_settings
 from app.core.eventloop import ensure_compatible_event_loop
 from app.db.base import utcnow
+from app.services import scoring as scoring_service
 from app.models import (
     AIGeneration,
     Contact,
@@ -129,12 +130,6 @@ async def main() -> None:
                 ),
                 Lead(
                     restaurant_id=kebab.id,
-                    score=87,
-                    score_reasons=[
-                        {"factor": "delivery_detectado", "points": 25},
-                        {"factor": "zona_cubierta", "points": 20},
-                        {"factor": "telefono_disponible", "points": 10},
-                    ],
                     status=LeadStatus.CONTACTED,
                     priority=LeadPriority.HIGH,
                     assigned_to=sales.id,
@@ -171,7 +166,7 @@ async def main() -> None:
         session.add_all(
             [
                 RestaurantSource(restaurant_id=pizzeria.id, source=SourceType.MANUAL_IMPORT),
-                Lead(restaurant_id=pizzeria.id, score=42, status=LeadStatus.NEW),
+                Lead(restaurant_id=pizzeria.id, status=LeadStatus.NEW),
             ]
         )
 
@@ -208,7 +203,6 @@ async def main() -> None:
                 ),
                 Lead(
                     restaurant_id=sushi.id,
-                    score=72,
                     status=LeadStatus.INTERESTED,
                     priority=LeadPriority.HIGH,
                     assigned_to=sales.id,
@@ -222,6 +216,10 @@ async def main() -> None:
                 ),
             ]
         )
+
+        # --- Scoring (real rules, not hardcoded values) ---
+        for restaurant in (kebab, pizzeria, sushi):
+            await scoring_service.score_restaurant(session, restaurant.id)
 
         await session.commit()
 

@@ -243,9 +243,11 @@ async def test_list_filter_by_platform_and_source(client, auth_headers, db_sessi
 async def test_list_sort_by_score_desc_nulls_last(client, auth_headers, db_session):
     created_high = await _create_restaurant(client, auth_headers["sales"], name="High")
     created_low = await _create_restaurant(client, auth_headers["sales"], name="Low")
-    await _create_restaurant(client, auth_headers["sales"], name="SinScore")
+    created_none = await _create_restaurant(client, auth_headers["sales"], name="SinScore")
 
-    for created, score in ((created_high, 10), (created_low, 90)):
+    # Creation scores leads automatically (M4): set explicit scores so the
+    # sort is deterministic, including an unscored (None) lead.
+    for created, score in ((created_high, 10), (created_low, 90), (created_none, None)):
         lead = (await db_session.scalars(
             select(Lead).where(Lead.restaurant_id == created["id"])
         )).one()

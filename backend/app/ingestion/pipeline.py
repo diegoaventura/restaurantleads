@@ -12,14 +12,14 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import utcnow
-from app.ingestion.base import Connector
+from app.ingestion.base import Connector, IngestionError
 from app.models import Lead, Restaurant, RestaurantSource
 from app.schemas.ingestion import (
     IngestionRunResult,
     PossibleDuplicateDetail,
     RestaurantCandidate,
 )
-from app.services import dedup
+from app.services import dedup, scoring
 from app.services.normalization import (
     normalize_candidate,
     normalize_name,
@@ -39,6 +39,7 @@ async def run_ingestion(
     possible_duplicates = 0
     invalid_reasons: list[str] = []
     possible_details: list[PossibleDuplicateDetail] = []
+    affected_ids: list[uuid.UUID] = []  # restaurants to (re)score
 
     candidates = await connector.fetch()
 
@@ -60,9 +61,11 @@ async def run_ingestion(
             assert match.restaurant is not None
             await _merge_into_existing(db, match.restaurant, normalized)
             exact_duplicates += 1
+            affected_ids.append(match.restaurant.id)
         else:
             restaurant = _create_restaurant(db, normalized)
             new += 1
+            affected_ids.append(restaurant.id)
             if match.type is dedup.MatchType.POSSIBLE and match.restaurant:
                 # Uncertain match: create, flag and queue for human review.
                 restaurant.possible_duplicate_of_id = match.restaurant.id
@@ -76,6 +79,14 @@ async def run_ingestion(
                         criterion=match.criterion,
                     )
                 )
+
+    # Scoring follows the architecture flow (INGESTA -> ... -> SCORING):
+    # every touched restaurant enters the list already prioritized.
+    try:
+        for affected_id in affected_ids:
+            await scoring.score_restaurant(db, affected_id)
+    except scoring.ScoringConfigError as exc:
+        raise IngestionError(f"Scoring no pudo ejecutarse: {exc}") from exc
 
     if dry_run:
         await db.rollback()

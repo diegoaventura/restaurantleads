@@ -91,16 +91,30 @@ demo real ejecutada contra la BD de desarrollo; 73 tests en verde (15 normalizac
 
 ---
 
-## M4 — Scoring
+## M4 — Scoring ✅
 
 **Objetivo**: score 0–100 configurable y explicable por restaurante.
 
 **Entregables**: `services/scoring.py` con reglas leídas de configuración (no hardcodeadas),
 `score_reasons` (factores positivos/negativos), recálculo manual (`POST /restaurants/{id}/score/recalculate`),
-tests `test_lead_scoring` (incluye: regla desactivada no puntúa, cambios de pesos).
+scoring automático tras alta manual e ingesta, seed con scores reales.
 
-**Verificación**: restaurante ficticio con delivery+teléfono+web obtiene score alto con
-razones correctas; restaurante vacío obtiene score bajo; tests en verde.
+**Notas de implementación**:
+- `backend/scoring_rules.json` (ruta configurable con `SCORING_RULES_PATH`): pesos, reglas
+  activables (`enabled`), ciudades de servicio y categorías objetivo. Cambiar un peso = editar
+  el JSON + recalcular: **cero cambios de código**.
+- Los predicados son código tipado (sin eval de expresiones, seguro y testeable); un id
+  desconocido en el JSON falla de forma explícita (`ScoringConfigError`).
+- Reglas M4: delivery (+25), zona (+20), teléfono (+10), web (+5), email (+5), categoría
+  objetivo (+10); negativas: posible duplicado pendiente de revisión (-15), sin datos de
+  contacto (-20). El score se limita a 0..100 (coincide con el CHECK de la BD).
+- `score_reasons` guarda `{factor, label, points}` — nunca un número sin explicación.
+- Reglas futuras (reseñas/actividad, varias ubicaciones) llegan con el enriquecimiento (M5+).
+
+**Verificación** ✅: score alto/medio/bajo con razones correctas; regla desactivada no puntúa;
+cambiar pesos cambia el score (sin tocar código); negativos y clamps 0/100; endpoint de
+recálculo baja el score al quitar el teléfono; ingesta y alta manual puntúan automáticamente;
+92 tests en verde (19 nuevos de scoring).
 
 ---
 

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "max_score": 100,
+  "service_cities": ["Madrid", "Getafe", "Alcobendas"],
+  "target_categories": ["kebab", "pizza", "hamburguesa", "sushi", "japanese"],
+  "rules": [
+    { "id": "delivery_detected", "label": "Delivery detectado", "points": 25 },
+    { "id": "in_service_area", "label": "Zona cubierta por el reparto", "points": 20 },
+    { "id": "has_phone", "label": "Teléfono disponible", "points": 10 },
+    { "id": "has_website", "label": "Web disponible", "points": 5 },
+    { "id": "has_email", "label": "Email disponible", "points": 5 },
+    { "id": "target_category", "label": "Categoría objetivo", "points": 10 }
+  ],
+  "negative_rules": [
+    { "id": "possible_duplicate", "label": "Posible duplicado (pendiente de revisión)", "points": -15 },
+    { "id": "no_contact_data", "label": "Sin datos de contacto", "points": -20 }
+  ]
+}

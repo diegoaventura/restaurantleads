@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     overpass_request_interval_seconds: float = 5.0
     overpass_timeout_seconds: float = 60.0
 
+    # --- Scoring (M4) ---
+    # Pesos y reglas activables sin tocar código; ver backend/scoring_rules.json
+    scoring_rules_path: str = "scoring_rules.json"
+
     # --- Database ---
     database_url: str = (
         "postgresql+psycopg://restaurant_leads:change_me_in_dev"

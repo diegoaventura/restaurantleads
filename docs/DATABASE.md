@@ -175,7 +175,7 @@ Estado comercial. **1:1 con restaurants** (`restaurant_id` UNIQUE).
 | `id` | UUID | PK |
 | `restaurant_id` | UUID | FK → restaurants, CASCADE, UNIQUE |
 | `score` | SMALLINT | CHECK `0..100`, nullable hasta primer scoring |
-| `score_reasons` | JSONB | nullable — `[{factor, points}]` explicativo |
+| `score_reasons` | JSONB | nullable — `[{factor, label, points}]` explicativo |
 | `scored_at` | timestamptz | nullable |
 | `status` | `lead_status` | NOT NULL, default `new` |
 | `priority` | `lead_priority` | NOT NULL, default `medium` |
