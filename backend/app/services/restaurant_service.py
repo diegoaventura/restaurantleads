@@ -21,8 +21,14 @@ from app.models import (
 )
 from app.models.enums import DeliveryPlatform, LeadStatus, SourceType
 
-# Eager loading: the list needs the lead summary; the detail everything.
-LIST_OPTIONS = (selectinload(Restaurant.lead),)
+# Eager loading: the list row needs lead, delivery, last interaction and
+# next follow-up; the detail needs everything.
+LIST_OPTIONS = (
+    selectinload(Restaurant.lead),
+    selectinload(Restaurant.delivery_presence),
+    selectinload(Restaurant.interactions),
+    selectinload(Restaurant.follow_ups),
+)
 DETAIL_OPTIONS = (
     selectinload(Restaurant.lead),
     selectinload(Restaurant.sources),
@@ -32,9 +38,15 @@ DETAIL_OPTIONS = (
     selectinload(Restaurant.follow_ups),
     selectinload(Restaurant.ai_generations),
 )
-# Duplicate review queue: the suspect AND the original (with its lead).
+# Duplicate review queue: the suspect AND the original both fully loaded
+# (both are serialized as RestaurantOut, including derived fields).
 DUPLICATE_QUEUE_OPTIONS = DETAIL_OPTIONS + (
-    selectinload(Restaurant.possible_duplicate_of).selectinload(Restaurant.lead),
+    selectinload(Restaurant.possible_duplicate_of).options(
+        selectinload(Restaurant.lead),
+        selectinload(Restaurant.delivery_presence),
+        selectinload(Restaurant.interactions),
+        selectinload(Restaurant.follow_ups),
+    ),
 )
 
 SORTABLE_COLUMNS = {"score", "name", "updated_at"}

@@ -138,6 +138,9 @@ class RestaurantOut(BaseModel):
     city: str | None
     category: str | None
     lead: LeadOut | None
+    delivery_platforms: list[str]  # model property (eager-loaded relations)
+    last_interaction_at: datetime | None
+    next_follow_up_at: datetime | None
     created_at: datetime
     updated_at: datetime
 

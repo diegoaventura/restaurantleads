@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* Thin, unobtrusive scrollbars for dense tables and the drawer. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-300) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-slate-300);
+  border-radius: 9999px;
+}

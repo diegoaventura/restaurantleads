@@ -20,7 +20,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
-from app.models.enums import SourceType, pg_enum
+from app.models.enums import FollowUpStatus, SourceType, pg_enum
 
 
 class Restaurant(TimestampMixin, Base):
@@ -88,3 +88,34 @@ class Restaurant(TimestampMixin, Base):
     ai_generations: Mapped[list["AIGeneration"]] = relationship(  # noqa: F821
         back_populates="restaurant", cascade="all, delete-orphan", passive_deletes=True
     )
+
+    # --- Derived list-row fields (relations must be eager-loaded) ---
+    @property
+    def delivery_platforms(self) -> list[str]:
+        """Detected platform values (e.g. ['glovo', 'just_eat'])."""
+        return [
+            presence.platform.value
+            for presence in self.delivery_presence
+            if presence.detected
+        ]
+
+    @property
+    def last_interaction_at(self) -> datetime | None:
+        return max(
+            (interaction.occurred_at for interaction in self.interactions),
+            default=None,
+        )
+
+    @property
+    def next_follow_up_at(self) -> datetime | None:
+        """Earliest PENDING follow-up (the agenda's next task)."""
+        pending = [
+            follow_up
+            for follow_up in self.follow_ups
+            if follow_up.status == FollowUpStatus.PENDING
+        ]
+        if not pending:
+            return None
+        return min(
+            pending, key=lambda follow_up: follow_up.scheduled_at
+        ).scheduled_at

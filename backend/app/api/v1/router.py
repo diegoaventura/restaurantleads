@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     auth,
+    dashboard,
     duplicates,
     follow_ups,
     health,
@@ -24,3 +25,4 @@ api_router.include_router(ingestion.router, prefix="/ingestion", tags=["ingestio
 api_router.include_router(duplicates.router, prefix="/duplicates", tags=["duplicates"])
 api_router.include_router(interactions.router, tags=["interactions"])
 api_router.include_router(follow_ups.router, tags=["follow-ups"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])

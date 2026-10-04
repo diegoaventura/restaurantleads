@@ -144,16 +144,29 @@ con validaciones (422); 107 tests en verde (15 nuevos de CRM).
 
 ---
 
-## M6 — Frontend + dashboard
+## M6 — Frontend + dashboard ✅
 
 **Objetivo**: SPA React+TS+Vite+Tailwind con login, dashboard y **tabla de leads** (pantalla principal).
 
-**Entregables**: auth (login/ruedas), dashboard con KPIs, tabla de leads con todos los
-filtros (ciudad, categoría, score, estado, plataforma, fuente, fecha), paginación,
-diferenciación visual de estados, flujo de 5 clics: abrir → ver → contactar → registrar → programar.
+**Entregables**: auth (login), dashboard con KPIs (`GET /dashboard/stats`) y agenda del día con
+acción rápida, tabla de leads con todos los filtros (búsqueda, ciudad, categoría, estado,
+plataforma, fuente, score mínimo, orden), paginación, diferenciación visual de estados,
+drawer de ficha con acciones (llamar `tel:`, WhatsApp `wa.me`, copiar) y **modal de registro**
+(canal/resultado/notas + programar seguimiento) — el flujo de 5 clics del plan.
 
-**Verificación**: build sin errores TS; flujo completo con seed ficticio; filtro+ordenación
-combinados funcionan. **Demo con el equipo tras este milestone antes de seguir.**
+**Notas de implementación**:
+- Stack: React 19 + TypeScript + Vite 7 + Tailwind CSS 4 (`@tailwindcss/vite`) + React Router 7.
+  Sin gestión de estado global (AuthContext + estado local — sin overengineering).
+- Backend: `GET /api/v1/dashboard/stats` (KPIs descriptivos) y campos derivados para las
+  columnas de la tabla (`delivery_platforms`, `last_interaction_at`, `next_follow_up_at` —
+  propiedades del modelo con relaciones precargadas).
+- Cliente API tipado espejo de los schemas del backend; 401 → logout automático.
+- Los estados tienen color propio (badges): nuevo/cualificado/contactado/interesado/reunión/
+  cliente/… — diferenciación visual inmediata (FASE 19).
+
+**Verificación** ✅: `tsc -b` sin errores + `vite build` OK; CORS verificado para :5173; 111
+tests backend en verde (4 nuevos de dashboard); **demo con el equipo pendiente — checkpoint
+del roadmap antes de continuar con M7**.
 
 ---
 

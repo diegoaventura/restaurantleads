@@ -5,9 +5,10 @@ de pedidos: sustituye el prospección manual (buscar restaurantes con delivery �
 contacto → llamar → registrar → hacer seguimiento → convertir) por un sistema con ingesta
 de datos, deduplicación, lead scoring explicable, CRM con seguimientos y analítica.
 
-> Estado actual: **Milestone 5 completado** (arquitectura, modelos, migraciones, backend
-> FastAPI con auth, ingesta con deduplicación, scoring explicable y CRM con seguimientos).
-> El desarrollo avanza por milestones — ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Milestone 6 completado** (arquitectura, modelos, migraciones, backend
+> FastAPI con auth, ingesta con deduplicación, scoring explicable, CRM con seguimientos
+> y frontend con dashboard + tabla de leads). El desarrollo avanza por milestones — ver
+> [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Stack
 
@@ -68,6 +69,19 @@ python run.py
 #    login: admin@example.com / demo1234 (rol admin)
 #    login: ventas@example.com / demo1234 (rol sales)
 ```
+
+## Frontend (http://localhost:5173)
+
+En otra terminal (requiere el backend arriba):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Login: `admin@example.com` / `demo1234` (o `ventas@example.com` para rol comercial).
+Si el backend no está en `127.0.0.1:8000`, copia `frontend/.env.example` a `.env`.
 
 > Nota Windows: `run.py` lanza uvicorn con `loop="none"` — uvicorn ≥0.36 fuerza
 > ProactorEventLoop en Windows, incompatible con psycopg async. En Linux/macOS
